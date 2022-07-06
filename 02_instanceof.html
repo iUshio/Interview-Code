@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：obj instanceof Object
+            参数：obj：查询的实例
+                Object：类
+            作用：用于判断构造函数（Object）的prototype属性是否出现在对象（obj）的原型链中
+            实现步骤：1.获取obj的原型链
+                    2.获取构造函数的原型对象
+                    3.一直循环比较上述两者是否相等，相等则返回true，当obj原型链为空时则返回false
+        */
+        //    代码实现
+        function myInstanceof(left, right) {
+            // 获取obj的原型链
+            let proto = left._proto_
+            // let proto = Object.getPrototypeOf(left) // 也可以这么写
+            // 获取构造函数原型对象
+            let prototype = right.prototype
+
+            // 循环比较两者是否相同
+            while (proto) {
+                if (proto === prototype) return true
+                // 不相同则原型链往下走
+                proto = proto._proto_
+            }
+            return false
+        }
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

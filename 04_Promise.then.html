@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：Promise.prototype.then(onFulfilled, onRejected);
+            参数：onFulfilled：当前实例变成fulfilled状态时，该参数作为回调函数被调用。
+                onRejected：当前实例变成reject状态时，该参数作为回调函数被调用。
+            作用：then()方法用于指定当前实例状态发生改变时的回调函数。它返回一个新的Promise实例。
+            实现步骤：1.处理传进来的参数：必须是函数
+                    2.判断当前状态，如果时pending，则将then中的方法加入到上一级promise执行链中
+                      ，如果是resolve或是reject，执行相应的执行函数
+                    3.在执行resolve或是reject函数中，需要判断上一级promise是否是回调自己
+                    4.返回一个promise对象（如果执行函数返回的不是prmise对象，需要自行强转为一个已解决的promise对象）
+        */
+        //    代码实现
+        const PENDING = 'pending'
+        const RESOLVED = 'resolved'
+        const REJECTED = 'rejected'
+        function myThen(onFulfilled, onReject) {
+            // 保存前一个promise的this
+            let self = this
+            // 处理传参
+            onFulfilled =
+                typeof onFulfilled == "function" ? onFulfilled : (v) => v;
+            // 失败函数处理 忽略函数之外的其他值 抛出异常
+            onReject =
+                typeof onReject == "function"
+                    ? onReject
+                    : (reason) => {
+                        throw reason;
+                        return
+                    };
+
+            return new Promise(() => {
+                // 封装前一个promise成功时执行的函数
+                let fulfilled = () => {
+                    try {
+                        // 执行成功回调函数
+                        const result = onFulfilled(self.value)
+                        // 避免回调地狱，（then链不能返回自己）
+                        if (result === self) {
+                            reject(new TypeError("Chaining cycle detected for promise #<MyPromise>"));
+                            return;
+                        }
+                        // 如果执行结果返回一个promise对象，继续执行后续的then链
+                        // 如果不是，则强制转换为一个promise对象
+                        return result instanceof Promise ? result.then(resolve, reject)
+                            : resolve(result)
+                    } catch (error) {
+                        rejected(err)
+                    }
+                }
+                // 封装前一个promise失败时执行的函数
+                let rejected = () => {
+                    try {
+                        // 执行成功回调函数
+                        const result = onReject(self.value)
+                        // 避免回调地狱，（then链不能返回自己）
+                        if (result === self) {
+                            reject(new TypeError("Chaining cycle detected for promise #<MyPromise>"));
+                            return;
+                        }
+                        // 如果执行结果返回一个promise对象，继续执行后续的then链
+                        // 如果不是，则强制转换为一个promise对象
+                        return result instanceof Promise ? result.then(resolve, reject)
+                            : resolve(result)
+                    } catch (error) {
+                        rejected(err)
+                    }
+                }
+
+                // 判断前面一个promise执行状态选择执行方案
+                switch (self.status) {
+                    case PENDING:
+                        // 如果前面的promise未执行完，将then中的执行函数加入到前面promise中的
+                        // 执行队列中
+                        self.onFulfilledQueue.push(fulfilled)
+                        self.onRejectQueue.push(rejected)
+                        break;
+                    case RESOLVED:
+                        // 执行成功函数回调
+                        fulfilled()
+                        break;
+                    case REJECTED:
+                        // 执行失败函数回调
+                        rejected()
+                        break;
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：new fn()
+            参数：fn：函数
+            作用：new 运算符创建一个用户定义的对象类型的实例或具有构造函数的内置对象的实例。
+                构造函数也是函数，其唯一的区别就是调用方式不同，任何函数只要使用 new 操作符
+                调用就是构造函数，而不使用 new 操作符调用的函数就是普通函数。因此构造函数
+                也可以带有返回值，但是这会导致new的结果不同。
+            实现步骤：1. 创建一个空的javascript对象就比如（即{}）；
+                    2. 链接该对象（即设置该对象的构造函数）到另一个对象;
+                    3. 将步骤1新创建的对象作为this的上下文；
+                    4. 判断该函数有没有返回对象，没有则返回this；
+        */
+        //    代码实现k
+        function myNew(Fn, ...args) {
+            // 创建一个空对象
+            let obj = {}
+            // 链接该对象到原型,这样新对象就能访问到原型上面的方法
+            obj._proto_ = Fn.prototype
+            // 将构造函数中的this指向obj，执行构造函数代码,获取返回值
+            let res = Fn.apply(obj, args)
+            // 如果该函数没有返回对象（即res不是一个对象），则返回this（即obj)
+            return res instanceof Object ? res : obj
+        }
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

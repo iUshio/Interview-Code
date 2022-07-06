@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：Object.create(proto[,propertiesObject])
+            参数：proto：创建对象的原型，表示要继承的对象
+                propertiesObject(可选 )：也是一个对象，用于对新创建的对象进行初始化
+            作用：创建一个新的proto的子对象并返回,
+                方法返回的对象的__proto__指向Object.create()方法传入的对象，而不是prototype指向,
+                相对于构造函数的继承Object.create继承实现了将A,B的原型完美分隔 。双方不会互相影响。
+        */
+        //    代码实现
+        function myCreate(obj) {
+            var F = function () { }
+            F.prototype = obj
+            return new F()
+        }
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
