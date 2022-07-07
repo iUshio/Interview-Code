@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：debounce(fn,wait)
+            参数：fn：执行函数
+                wait：等待时间
+            作用：事件被触发n秒后执行，若n秒内再次被触发则重新计时
+        */
+        //    代码实现
+        function debounce(fn, wait) {
+            //    缓存一个定时器
+            let timer = null
+            return function (...args) {
+                // 缓存的函数中使用闭包存留有timer，如果计时器存在，则清空定时器重新计时
+                if (timer) {
+                    clearTimeout(timer)
+                    timer = null
+                }
+                
+                timer = setTimeout(() => {
+                    // 改变fnthis指向
+                    fn.apply(this, args)
+                },wait)
+            }
+        }
+
+        // 测试
+        window.onload = function () {
+            let btn = document.getElementById('btn')
+            console.log(btn);
+            btn.onclick = debounce(()=>{ console.log('1');},2000)
+        }
+
+    </script>
+</head>
+
+<body>
+    <button id="btn"></button>
+</body>
+
+</html>

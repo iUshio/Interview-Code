@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：fn.call(fn2,...args）
+            作用：改变this执行，使得fn的内容在fn2的环境中执行
+            实现步骤：在fn2上挂在fn函数，执行fn2上的fn，在删除fn
+        */
+        //    代码实现
+        Function.prototype.myCall = function (fn, ...args) {
+            // 监测是否传入fn，若为传入则指向window
+            fn = fn || window
+
+            //    在fn上挂载目标函数
+            fn.fun = this
+
+            // 执行目标函数
+            let res = fn.fun(...args)
+            // 删除fn上的目标函数，避免污染原函数
+            delete fn.fun
+
+            return res
+        }
+
+        // 测试
+        age = 30
+        function say(name) {
+            console.log(name + this.age + '岁了');
+        }
+        console.log('不使用call');
+        say('Andy')
+
+        console.log('使用call');
+        const obj = { age: 23 }
+        say.myCall(obj, 'sea')// sea23岁了
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

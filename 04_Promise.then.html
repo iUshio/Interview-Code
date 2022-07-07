@@ -69,7 +69,7 @@
                         // 如果执行结果返回一个promise对象，继续执行后续的then链
                         // 如果不是，则强制转换为一个promise对象
                         return result instanceof Promise ? result.then(resolve, reject)
-                            : resolve(result)
+                            : reject(result)
                     } catch (error) {
                         rejected(err)
                     }

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：Promise.all([p1, p2, p3])
+            参数：p1，p2，p3均为Promise对象，若不是则用Promise.resolve转成Promise对象
+            作用：Promise.all接受一个promise对象的数组作为参数，
+                当这个数组里的所有promise对象全部变为resolve或有
+                reject状态出现的时候，他才会去调用.then方法，它们是并发执行的
+            实现步骤：1.接收一个Promise实例的数组或具有Iterator接口的对象
+                    2.如果元素不是Promise对象，则使用Promise.resolve转成Promise对象
+                    3.如果全部成功，状态变为resolved，返回值将组成一个数组传给回调
+                    4.只有有一个失败，状态就变为rejected，返回值将直接传递给回调all()的返回值，也是新的promise对象
+        */
+        //    代码实现
+        function promiseAll(promises) {
+            return new Promise((resolve, reject) => {
+                //    传入的如果不是数组
+                if (!Array.isArray(promises)) {
+                    return reject(new TypeError('arguments must be an array'))
+                }
+
+                // 统计resolve的数量
+                let resolveNum = 0
+                let promiseNum = promises.length
+                let resolveArray = []
+                for (let i = 0; i < promiseNum; i++) {
+                    // 使用resolve处理传参并执行
+                    Promise.resolve(promises[i]).then(
+                        (res) => {
+                            // 成功的处理函数
+                            resolveArray[i] = res
+                            resolveNum++;
+                            // 异步执行完再返回，在外围返回会导致异步未执行完
+                            if (resolveNum == promiseNum) {
+                                 resolve(resolveArray)
+                            }
+                        }
+                        , (error) => {
+                            // 失败的处理函数
+                             reject(error)
+                        })
+                }
+
+
+            })
+        }
+
+        let p1 = new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(1)
+            }, 1000)
+        })
+
+        let p2 = new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(2)
+            }, 2000)
+        })
+
+        let p3 = new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(3)
+            }, 3000)
+        })
+
+        promiseAll([p1, p2, p3]).then(res => {
+            console.log(res);
+        })
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
