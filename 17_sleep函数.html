@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：sleep(time);
+            参数：等待的时间
+            作用：使程序暂停指定的时间，起到延时的效果。
+            实现步骤：使用promise封装setTimeout函数
+        */
+        //    代码实现
+
+        function promiseSleep(delayTime) {
+            console.log('test');
+            let res = new Promise(resolve => {
+                setTimeout(() => resolve(), delayTime)
+            })
+            return res
+        }
+
+        async function mySleep(delayTime) {
+            await promiseSleep(delayTime)
+            console.log('2');
+        }
+
+        // 测试
+        console.log('1');
+        mySleep(2000)
+        
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

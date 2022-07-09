@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        //    代码实现
+        function myAJAX(method, url, data) {
+            // 处理传参
+            method = method || 'GET'
+            url = url || ''
+            data = data || null
+            
+            return Promise((resolve, reject) => {
+                // 创建XMLHttpRequest
+                let xhr = new XMLHttpRequest()
+                // 创建http请求
+                xhr.open(method, url, true)
+                // 设置状态监听函数
+                xhr.onreadystatechange = function () {
+                    if (this.readyState !== 4) return;
+                    // 请求成功时
+                    if (this.status === 200) {
+                        resolve(this.response)
+                    } else {
+                        reject(new Error(this.statusText))
+                    }
+                }
+                // 设置响应的数据类型
+                xhr.responseType = 'json'
+                // 设置请求头
+                xhr.setRequestHeader('Accept', 'application/json')
+                // 发送http请求
+                xhr.send(data)
+            })
+
+        }
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        //    代码实现
+        function shallowCopy(obj) {
+            //    只对对象进行拷贝
+            if (!obj || typeof obj !== 'object') return;
+            // 根据obj的类型决定创建数组还是对象
+            let newObj = Array.isArray(obj) ? [] : {}
+            // 遍历obj，并复制是对象的属性
+            for (let key in obj) {
+                newObj[key] = obj[key]
+            }
+            return newObj
+        }
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

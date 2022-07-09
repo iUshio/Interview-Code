@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            什么是函数柯里化：函数柯里化就是我们给一个函数传入一部分参数，此时就会返回一个函数来接收剩余的参数。
+            函数柯里化的好处：我们希望处理函数时，希望函数功能尽可能单一。
+            语法：curry(fn)
+            实现：1.获取fn函数所需的所有参数的长度
+                2.返回函数，该函数嵌套，嵌套长度取决于还剩多少参数没有传回来
+                3.统计已经获取了多少参数
+                4.如果函数参数数量不够，将已经接收到的参数继续嵌套传下去
+                5.如果函数参数数量够了，使用apply|call调用fn
+        */
+        //    代码实现
+
+        function myCurry(fn, args) {
+            //    统计fn所需获取的参数的长度
+            let len = fn.length
+            // 处理传参
+            args = args || []
+            // 嵌套返回函数
+            return function () {
+                // 收集上一层传入的参数
+                let subArgs = args.slice(0)
+                // 将本次的传参加入到参数中
+                for (let i of arguments) {
+                    subArgs.push(i)
+                }
+                if (subArgs.length >= len) {
+                    // 传参数量够了，执行原本函数
+                    return fn.apply(this, subArgs)
+                } else {
+                    // 继续往下传参
+                    return myCurry.call(this, fn, subArgs)
+                }
+            }
+        }
+
+        // 测试
+        // 普通的add函数
+        function add(x, y) {
+            return x + y
+        }
+
+        // Currying后
+        let test = myCurry(add)
+
+        console.log(add(1, 2)); // 3
+        console.log(test(1)(2));    // 3
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

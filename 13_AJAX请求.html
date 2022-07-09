@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            实现步骤：1.创建XMLHttpRequest对象
+                    2.在这个对象上使用open创建http请求
+                    3.设置监听状态监听函数
+                    4.使用sent方法发送请求
+        */
+        //    代码实现
+
+        // 1.创建XMLHttpRequest对象
+        let xhr = new XMLHttpRequest()
+        // 2.创建http请求
+        xhr.open('GET', 'url', true)
+        // 3.设置状态监听函数
+        xhr.onreadystatechange = function () {
+            if (this.readyState !== 4) return;
+            // 请求成功
+            if (this.status === 200) {
+                // 处理结果
+                let result = JSON.parse(this.responseText)
+                // xxxx（处理过程）
+            } else {
+                console.error(this.statusText);
+            }
+        }
+        // 设置请求头
+        xhr.responseType = 'json'
+        xhr.setRequestHeader('Accept', 'application/json')
+        // 发送http请求（post方法可在这里发送数据）
+        xhr.sent(null)
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

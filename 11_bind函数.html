@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：function () {console.log(this.name)}.bind(obj)
+            参数：obj：指定的this
+            作用：bind 用来改变this的指向，并返回一个改变了this指向的新函数。
+            实现步骤：1.判断this是否是一个函数，不是则抛出错误
+                    2.保存this
+                    3.返回函数，这个返回函数的返回值使用apply|call改变this指向
+        */
+        //    代码实现
+        Function.prototype.myBind = function (fn, ...args) {
+            // 1.判断this是否是一个函数
+            if (typeof this !== 'function') {
+                throw new TypeError('Error')
+            }
+
+            // 保存当前this
+            let self = this
+
+            // 返回函数
+            return function () {
+                // 使用闭包传递this和参数
+                return self.apply(fn, args)
+            }
+        }
+
+        // 测试
+        let obj = { name: 'jack' }
+
+        name = '小张'
+        let func = function () {
+            console.log(this.name) // jack
+        }.myBind(obj)
+
+        func() 
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

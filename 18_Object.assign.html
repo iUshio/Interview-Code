@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：Object.assign(target,...source)
+            参数：target：目标函数
+            作用：将所有可枚举属性的值从一个或多个源对象复制到目标对象，同时返回目标对象
+            实现步骤：
+        */
+        //    代码实现
+        Object.myAssign = function (target, ...args) {
+            if (target == null) {
+                throw new TypeError('Error')
+            }
+            //    遍历参数
+            args.forEach((item) => {
+                for (let key in item) {
+                    target[key] = item[key]
+                }
+            })
+            return target
+        }
+
+        //    测试
+        let a = {
+            name: "muyiy",
+            age: 18
+        }
+        let b = {
+            b1: Symbol("muyiy"),
+            b2: null,
+            b3: undefined
+        }
+        let c = Object.myAssign(a, b);
+        console.log(c);
+
+        console.log(a === c);
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
