@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+       //    代码实现
+       function dateFormate(dateInput,format){
+        //    获取日期
+        let day = dateInput.getDate()
+        // 获取月份
+        let month = dateInput.getMonth() + 1
+        // 获取年份
+        let year = dateInput.getFullYear()
+        
+        // 格式化年份
+        format = format.replace(/yyyy/,year)
+        // 格式化月份
+        format = format.replace(/MM/,month)
+        // 格式化日期
+        format = format.replace(/dd/,day)
+        return format
+       }
+
+       console.log(dateFormate(new Date(),'yyyy/MM/dd'));
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

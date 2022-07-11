@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        //    代码实现
+        function randomArray(arr) {
+            let len = arr.length
+            let randomIndex
+            for (let i = 0; i < len; i++) {
+                // 生成一个随机数
+                randomIndex = Math.round(Math.random() * (len - 1))
+                if (randomIndex === i) continue
+                // 交换这两个值
+                arr[randomIndex] = arr[i] + arr[randomIndex]
+                arr[i] = arr[randomIndex] - arr[i]
+                arr[randomIndex] = arr[randomIndex] - arr[i]
+            }
+            return arr
+        }
+
+        console.log(randomArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]));
+
+        let test = [1, 2, [3, 4]]
+        console.log(Array.isArray(test[2]));
+
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

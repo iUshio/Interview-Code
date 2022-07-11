@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        // 将多层次的数组转化为单一层次的数组
+        //    代码实现
+        function flatten(arr) {
+            //    只要数组的元素是数组就进行展开一层
+            while (arr.some((item) => Array.isArray(item))) {
+                arr = [].concat(...arr)
+            }
+
+            return arr
+        }
+
+        let arr = [1, [2, [3, 4]],[5]]
+        console.log(flatten(arr));
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
