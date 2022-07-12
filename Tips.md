@@ -190,3 +190,70 @@
 **原数组改变的方法有：push pop shift unshift reverse sort splice**
 
 **不改变原数组的方法有：concat map filter join every some indexOf slice forEach**
+
+# Object.defineProperty 
+
+**=> Vue数据双向绑定原理**
+
+- Object.defineProperty这个方法接收三个参数:
+  - 属性所在的对象（Object 对象 => 给谁加）
+  - 属性的名字（propName 属性名 => 要加的属性的名字 【类型：String）
+  - 一个描述符对象（descriptor 属性描述 => 加的这个属性有什么样的特性【类型：Object）
+    - 描述符对象是个什么东西呢？他可以是数据属性：
+      - configurable:表示能否通过delete删除属性从而重新定义属性，能否修改属性的特性，或者能否把属性修改为访问器属性，默认值为true。
+      - enumerable：表示能否通过for in循环访问属性，默认值为true
+      - writable：表示能否修改属性的值。默认值为true。
+      - value：包含这个属性的数据值。默认值为undefined。
+    - 该方法的第三个参数除了可以是数据属性，也可以是访问器属性。
+      - get：在读取属性时调用的函数，默认值是undefined 2..set：在写入属性的时候调用的函数，默认值是undefined现在我们来用这两个方法来实践一下：
+       ```javascript
+        let book = {
+            _year : 2004,
+            edition : 1
+        }
+        Object.defineProperty(book,"year",{
+            get: function(){
+                return this._year
+            },
+            set: function(newYear){
+                if(newYear > 2004){
+                    this._year = newYear;
+                    this.edition += newYear - 2004
+                }
+            }
+        })
+
+        book.year = 2005;
+        console.log(book.edition); // 2
+        console.log(book._year); //2005
+       ```
+- 最后再说一下如何进行定义多个属性
+  ```javascript
+    let student = {};
+    Object.defineProperties(student,{
+        name:{
+            writable:false,
+            value:"lisi"
+        },
+        age : {
+            writable:true,
+            value : 16,
+        },
+        sex:{
+            get(){
+                return '男';
+            },
+            set(v){
+                p1.sex = v
+            }
+        }
+    })
+
+    p1.sex = "男";
+    console.log(student.name + ":" + student.age);
+    console.log(p1.sex); // 男
+    student.sex = "女";
+    console.log(student.sex); //男
+    console.log(p1.sex); // 女
+  ```
+
