@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /*
+            语法：new Promise(excutor)
+            参数：excutor函数：执行器（resolve，reject）=>{}
+                            resolve函数：内部定义成功时回调
+                            reject函数：内部定义失败时回调
+            作用：  实现异步操作，有效避免回调地狱
+            实现步骤：采用es6类的方法实现：
+                1.判断传入的参数是否是一个函数fn，是则继续往下
+                2.初始化Promise的数据（变量state，变量value，两个变量queue）
+                3.将类的resolved方法和rejected方法传入fn中执行（记得使用bind固定这俩的this指向）
+                4.完成resolved方法和rejected方法:
+                    (1).函数接受一个value，这个value就是可以往下传递以及这个Promise的值
+                    (2).赋值给实例的value，存储value值
+                    (3).使用queueMicrotask方法实现微任务（该方法不改变this指向）
+                    (4).先判断Promise的状态是否是正在进行，如果不是则不执行后面的函数
+                    (5).更改Promise的状态
+                    (6).执行queue队列中的函数并传入value实现Promise链值的传递
+                        （这个函数只包括本Promise的下一个then，再往后的则是then返回的Promise处理了）
+                5.完成then方法（重点）:
+                    (1).then方法执行完毕后返回一个新的Promise，这个Promise的值为上一个Promise提交的value
+                    (2).收集then接受的resolved方法和rejected方法并将其包装
+                        （先判断是否传入一个函数，如果不是则使用Promise.resolved或者rejected强转为Promise；
+                        如果是，则先执行这个函数取得返回值，这个返回值如果不是Promise，则进行强转，
+                        如果是则将resolved和rejected方法使用then方法传递给这个Promise，这个Promise执行后会
+                        在then中根据这个Promise的执行结果执行传进去的resolved和rejected方法，已达到根据
+                        这个返回的Promise决定then返回的Promise的状态【resolved或者rejected】）
+                    (3).将新封装的resolved方法和rejected方法传递给上一个Promise的执行队列
+                        （then方法执行是根据上一个Promise的执行结果判定），因为此时then中的this指针指向上一个Promise
+                6.实现Promise.catch方法：
+                    (1).Promise.catch方法捕捉上一个Promise的错误（rejected等），默认返回一个resolved的Promise
+                        如果前一个Promise执行成功则不会执行内部内容，直接返回默认值
+                    (2).直接返回this.then(undefined, rejectHandler)即可
+                7.实现Promise.all方法
+                    (1).Promise.all传入一个Promise数组，负责执行完里面的所有Promise，最后返回一个
+                        Promise，这个Promise的值是执行结果数组，如果数组里面的值不为Promise，则进行
+                        强制转换
+                    (2).返回一个Promise
+                    (3).在这个Promise中先判断传入的值是否为一个数组（带有迭代器）
+                    (4).记录传入数组长度与结果
+                    (5).执行数组中的所有内容（先强制转换再执行）
+                    (6).在执行中：1.记录结果 2.判断结果数组长度是否与传入数组长度相等，
+                        相等则说明全部执行完毕（异步操作，不可以直接在循环外边返回结果），然后
+                        调用resolved方法返回结果Promise 3.在执行过程中只要遇到失败结果，直接
+                        调用rejected方法
+                8.实现Promise.race方法
+                    (1)基本同all一致，只是Promise.race方法遇到结果执行完毕则直接执行resolved方法
+                        返回结果
+        */
+        //    代码实现
+        //    三个状态
+
+        class myPromise {
+            // 三种状态
+            static PENGDING = 'pending'
+            static RESOLVED = 'resolved'
+            static REJECTED = 'rejected'
+
+            constructor(resolver) {
+                // 检验传递参数
+                if (!(resolver instanceof Function)) {
+                    throw new TypeError('请传入函数')
+                }
+                // 初始化状态
+                // 存储Promise的状态
+                this.state = myPromise.PENGDING
+
+                // 存储Promise链中的传递值
+                this.value = null
+
+                // 定义resolve函数队列 reject函数队列
+                // 这个队列用来根据自身的状态（resolved || rejected）执行下一个then中的内容
+                // 因为可能存在多次非连续调用then方法的情况，所以采用数组方式
+                this.resolveQueues = [];
+                this.rejectQueues = [];
+
+                // 调用resolver
+                // 如果不适用bind的话会使得resolved的this指向resolver而不是实例
+                resolver(this._resolved.bind(this), this._rejected.bind(this))
+            }
+
+            // resolved函数
+            _resolved(value) {
+                // 如果传进来的是一个Promise则只需要取他的值
+                if(value instanceof myPromise) value = value.value
+                this.value = value
+                // resolved中的代码需保证在本轮事件循环的末尾执行且为微任务
+                queueMicrotask(() => {
+                    // 判断当前状态，如果是解决了的话则不执行函数
+                    if (this.state !== myPromise.PENGDING) return;
+                    // 更改成功状态
+                    this.state = myPromise.RESOLVED
+                    // 传递值
+                    let handler;
+                    // 执行队列中的函数
+                    while (handler = this.resolveQueues.shift()) {
+                        handler(this.value)
+                    }
+                })
+            }
+
+            // rejected函数
+            _rejected(value) {
+                // 传递值
+                if(value instanceof myPromise) value = value.value
+                this.value = value
+                // rejected中的代码需保证在本轮事件循环的末尾执行
+                queueMicrotask((value) => {
+                    // 判断当前状态，如果是解决了的话则不执行函数
+                    if (this.state !== myPromise.PENGDING) return;
+
+                    // 更改成功状态
+                    this.state = myPromise.REJECTED
+                    let handler;
+                    // 执行队列中的函数
+                    while (handler = this.rejectQueues.shift()) {
+                        handler(this.value)
+                    }
+
+                })
+            }
+
+            // then方法
+            then(resolvedHandler, rejectedHandler) {
+                // 返回一个Promise，并将当前的执行函数压入
+                return new myPromise((resolved, rejected) => {
+                    // 向上传递成功的方法
+                    function newResolvedHandler(val) {
+                        // 如果then中传递的是不是一个函数，则判定为一个resolved的Promise
+                        if (typeof resolvedHandler === 'function') {
+                            // 执行then中传递的方法，这个方法需返回一个promise
+                            // 如果不是则转化为promise
+                            let result = resolvedHandler(val)
+
+                            // 传递成功值，改变当前Promise状态，继续链的执行
+                            // resolved使用闭包传递值
+                            if (result instanceof myPromise) {
+                                // 使用闭包，本次新建的Promise状态取决于这个Promise的状态
+                                result.then(resolved, rejected)
+                            } else {
+                                // 改变当前Promise的状态
+                                resolved(result);
+                            }
+                        } else {
+                            resolved(val)
+                        }
+
+                    }
+
+                    // 失败的方法
+                    function newRejectedHandler(val) {
+                        if (typeof rejectedHandler === 'function') {
+                            // 执行失败函数
+                            let result = rejectedHandler(val)
+
+                            // 传递失败值
+                            if (result instanceof myPromise) {
+                                result.then(resolved, rejected)
+                            } else {
+                                rejected(result);
+                            }
+                        } else {
+                            rejected(val)
+                        }
+
+                    }
+
+                    // 将这两个函数加入到队列中
+                    this.resolveQueues.push(newResolvedHandler)
+                    this.rejectQueues.push(newRejectedHandler)
+                })
+
+            }
+
+            // catch方法（捕捉前一个Promise的失败）
+            // 如果前一个Promise成功则不会执行函数内部的内容
+            // then方法第一个参数不需要传递即可
+            catch(rejectHandler) {
+                return this.then(undefined, rejectHandler)
+            }
+
+            // all方法
+            static all(promiseArray) {
+                // 返回一个promise（包含运行结果）
+                return new myPromise((resolved, rejected) => {
+                    // 判定是否是数组
+                    if (!Array.isArray(promiseArray)) {
+                        rejected(new TypeError('arguments must be an array'))
+                    } else {
+                        // 统计数组长度
+                        let len = promiseArray.length;
+                        // 接受结果的数组
+                        let result = []
+                        // 执行每一个Promise，不是Promise的强转为Promise
+                        promiseArray.forEach(item => {
+                            myPromise.resolved(item).then(
+                                (res) => {
+                                    result.push(res)
+                                    // 执行完所有Promise后返回
+                                    if (result.length == len)
+                                        resolved(result)
+                                },
+                                (rej) => {
+                                    // 遇到第一个错误直接返回
+                                    rejected(rej)
+                                }
+                            )
+                        });
+                    }
+
+                })
+            }
+
+            // race方法(思路基本和all一致)
+            static race(promiseArray) {
+                // 返回一个promise（包含运行结果）
+                return new myPromise((resolved, rejected) => {
+                    // 判定是否是数组
+                    if (!Array.isArray(promiseArray)) {
+                        rejected(new TypeError('arguments must be an array'))
+                    } else {
+                        // 执行每一个Promise，不是Promise的强转为Promise
+                        promiseArray.forEach(item => {
+                            myPromise.resolved(item).then(
+                                (res) => {
+                                    // 执行完第一个Promise后返回
+                                    resolved(res)
+                                },
+                                (rej) => {
+                                    // 遇到错误直接返回
+                                    rejected(rej)
+                                }
+                            )
+                        });
+                    }
+
+                })
+            }
+
+            static resolved(value) {
+                return new myPromise((res) => {
+                    res(value)
+                })
+            }
+
+            static rejected(value) {
+                return new myPromise((res, rej) => {
+                    rej(value)
+                })
+            }
+        }
+
+        // 测试
+        // let p1 = new myPromise((resolve) => {
+        //     setTimeout(() => {
+        //         resolve(1)
+        //     }, 5000)
+        // })
+
+        // let p2 = new myPromise((resolve) => {
+        //     setTimeout(() => {
+        //         resolve(2)
+        //     }, 2000)
+        // })
+
+        // let p3 = new myPromise((resolve) => {
+        //     setTimeout(() => {
+        //         resolve(3)
+        //     }, 1000)
+        // })
+
+        // myPromise.race([p1, p2, p3]).then(res => {
+        //     console.log(res);
+        // })
+
+        
+        let p = new myPromise(()=>{})
+        console.log(p);
+        console.log(p instanceof myPromise);
+
+        myPromise.resolved(myPromise.resolved('1')).then((res)=>{
+            console.log(res);
+            return myPromise.resolved(res)
+        }).then((res)=>{
+            console.log(res);
+            return myPromise.resolved(res)
+        })
+
+        let name = 'Jack'
+        let p1 = new myPromise(function(resolved,rejected){
+            console.log(name);
+            resolved('ok')
+        })
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
