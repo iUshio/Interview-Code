@@ -14,8 +14,6 @@
             let span = document.getElementById('span')
 
             Object.defineProperty(obj, 'text', {
-                configurable: true,
-                enumerable: true,
                 get() {
                     console.log('获取数据');
                 },

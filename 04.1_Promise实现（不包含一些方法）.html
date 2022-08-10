@@ -201,7 +201,10 @@
                         let result = []
                         // 执行每一个Promise，不是Promise的强转为Promise
                         promiseArray.forEach(item => {
-                            myPromise.resolved(item).then(
+                            if(!(item instanceof myPromise)){
+                                item = myPromise.resolved(item)
+                            }
+                            item.then(
                                 (res) => {
                                     result.push(res)
                                     // 执行完所有Promise后返回
@@ -229,7 +232,10 @@
                     } else {
                         // 执行每一个Promise，不是Promise的强转为Promise
                         promiseArray.forEach(item => {
-                            myPromise.resolved(item).then(
+                            if(!(item instanceof myPromise)){
+                                item = myPromise.resolved(item)
+                            }
+                            item.then(
                                 (res) => {
                                     // 执行完第一个Promise后返回
                                     resolved(res)
@@ -259,46 +265,46 @@
         }
 
         // 测试
-        // let p1 = new myPromise((resolve) => {
-        //     setTimeout(() => {
-        //         resolve(1)
-        //     }, 5000)
-        // })
+        let p1 = new myPromise((resolve) => {
+            setTimeout(() => {
+                resolve(1)
+            }, 5000)
+        })
 
-        // let p2 = new myPromise((resolve) => {
-        //     setTimeout(() => {
-        //         resolve(2)
-        //     }, 2000)
-        // })
+        let p2 = new myPromise((resolve) => {
+            setTimeout(() => {
+                resolve(2)
+            }, 2000)
+        })
 
-        // let p3 = new myPromise((resolve) => {
-        //     setTimeout(() => {
-        //         resolve(3)
-        //     }, 1000)
-        // })
+        let p3 = new myPromise((resolve) => {
+            setTimeout(() => {
+                resolve(3)
+            }, 1000)
+        })
 
-        // myPromise.race([p1, p2, p3]).then(res => {
-        //     console.log(res);
-        // })
+        myPromise.race([p1, p2, p3]).then(res => {
+            console.log(res);
+        })
 
         
-        let p = new myPromise(()=>{})
-        console.log(p);
-        console.log(p instanceof myPromise);
+        // let p = new myPromise(()=>{})
+        // console.log(p);
+        // console.log(p instanceof myPromise);
 
-        myPromise.resolved(myPromise.resolved('1')).then((res)=>{
-            console.log(res);
-            return myPromise.resolved(res)
-        }).then((res)=>{
-            console.log(res);
-            return myPromise.resolved(res)
-        })
+        // myPromise.resolved(myPromise.resolved('1')).then((res)=>{
+        //     console.log(res);
+        //     return myPromise.resolved(res)
+        // }).then((res)=>{
+        //     console.log(res);
+        //     return myPromise.resolved(res)
+        // })
 
-        let name = 'Jack'
-        let p1 = new myPromise(function(resolved,rejected){
-            console.log(name);
-            resolved('ok')
-        })
+        // let name = 'Jack'
+        // let p1 = new myPromise(function(resolved,rejected){
+        //     console.log(name);
+        //     resolved('ok')
+        // })
     </script>
 </head>
 

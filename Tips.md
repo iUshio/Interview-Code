@@ -46,7 +46,7 @@
 ``` javascript
     let arr = [1,2,3,4]
     let str1 = arr.join()
-    let str2 = arr.join('-)
+    let str2 = arr.join('-')
     console.log(str1,str2) // 1,2,3,4  1-2-3-4
 ```
 
@@ -105,10 +105,10 @@
 ```
 
 10.  Array.slice() 按照条件查找出其中的部分内容,返回一个新数组不改变原数组
-    1. array.slice(n, m)，从索引n开始查找到m处（不包含m）
-    2. array.slice(n, m)，从索引n开始查找到m处（不包含m）
-    3. array.slice(0)原样输出内容，可以实现数组克隆
-    4. array.slice(-n,-m) slice支持负参数，从最后一项开始算起，-1为最后一项，-2为倒数第二项
+         1. array.slice(n, m)，从索引n开始查找到m处（不包含m）
+         2. array.slice(n, m)，从索引n开始查找到m处（不包含m）
+         3. array.slice(0)原样输出内容，可以实现数组克隆
+         4. array.slice(-n,-m) slice支持负参数，从最后一项开始算起，-1为最后一项，-2为倒数第二项
 
 ``` javascript
     let arr1 = [1,2,3,4]
